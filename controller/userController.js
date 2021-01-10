@@ -1,17 +1,20 @@
 const express = require('express');
-// const mongoose = require('mongoose');
 const router = express.Router();
 const userModel = require('../models/userModel');
 
 // const user = new mongoose.model('users', userSchema);
 router.post('/save', async (req, res, next) => {
-    await new userModel(req.body).save(function (err) {
+    const doc = new userModel(req.body)
+    doc.userID = doc._id
+    await doc.save((err, doc)=>{
         if (err) next(err)
+        res.status(201).json({
+            statusCode: 201,
+            message: 'Successfully added data',
+            body:doc
+        })
     })
-    res.status(201).json({
-        statusCode: 201,
-        message: 'Successfully added data'
-    })
+
 })
 
 router.get('/:id', async (req, res, next) => {
@@ -23,7 +26,7 @@ router.get('/:id', async (req, res, next) => {
             statusCode: person ? 200 : 204,
             body: person ? person : 'No Content Found'
         });
-    });
+    }).lean();
 })
 
 router.delete('/:id', async (req, res, next) => {
